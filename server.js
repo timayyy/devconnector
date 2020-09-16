@@ -12,15 +12,23 @@ const app = express();
 
 //body parser
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 //DB Config
 const db = require("./config/keys").mongoURI;
 
 //Connect to db
 mongoose
-  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB Connected...."))
-  .catch((err) => console.log(err));
+  .connect(db, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  })
+  .then((conn) => console.log(`MongoDB Connected: ${conn.connection.host}`))
+  .catch((err) => {
+    console.error(err.message);
+    process.exit(1);
+  });
 
 //Passport Middleware
 app.use(passport.initialize());
@@ -33,6 +41,6 @@ app.use("/api/users", users);
 app.use("/api/profile", profile);
 app.use("/api/posts", posts);
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5005;
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
